@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Design Decisions"
+  short_description: "Turn design questions into an implementation plan"
+  default_prompt: "Use $plan-design-decisions to interview me and create a plan for the design decisions in my product."

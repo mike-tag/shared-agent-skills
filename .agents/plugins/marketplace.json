@@ -1,0 +1,20 @@
+{
+  "name": "mike-tag-skills",
+  "interface": {
+    "displayName": "Mike Tag Skills"
+  },
+  "plugins": [
+    {
+      "name": "design-planning",
+      "source": {
+        "source": "local",
+        "path": "./plugins/design-planning"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
