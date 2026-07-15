@@ -1,0 +1,11 @@
+{
+  "name": "design-planning",
+  "description": "Turn product and visual design decisions into implementation-ready plans.",
+  "author": {
+    "name": "mike-tag"
+  },
+  "homepage": "https://github.com/mike-tag/shared-agent-skills",
+  "repository": "https://github.com/mike-tag/shared-agent-skills",
+  "license": "MIT",
+  "keywords": ["design", "planning", "product", "ux"]
+}

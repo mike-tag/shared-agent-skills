@@ -1,0 +1,22 @@
+{
+  "name": "mike-tag-skills",
+  "owner": {
+    "name": "mike-tag"
+  },
+  "description": "Reusable Agent Skills maintained by mike-tag.",
+  "plugins": [
+    {
+      "name": "design-planning",
+      "source": "./plugins/design-planning",
+      "description": "Plan product and visual design decisions through an adaptive interview.",
+      "author": {
+        "name": "mike-tag"
+      },
+      "homepage": "https://github.com/mike-tag/shared-agent-skills",
+      "repository": "https://github.com/mike-tag/shared-agent-skills",
+      "license": "MIT",
+      "category": "Productivity",
+      "tags": ["design", "planning", "product", "ux"]
+    }
+  ]
+}
