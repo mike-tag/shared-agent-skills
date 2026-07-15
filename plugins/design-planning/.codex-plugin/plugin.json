@@ -1,0 +1,26 @@
+{
+  "name": "design-planning",
+  "version": "1.0.0",
+  "description": "Turn product and visual design decisions into implementation-ready plans.",
+  "author": {
+    "name": "mike-tag",
+    "url": "https://github.com/mike-tag"
+  },
+  "homepage": "https://github.com/mike-tag/shared-agent-skills",
+  "repository": "https://github.com/mike-tag/shared-agent-skills",
+  "license": "MIT",
+  "keywords": ["design", "planning", "product", "ux"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Design Planning",
+    "shortDescription": "Turn design decisions into implementation-ready plans",
+    "longDescription": "Use an adaptive question-and-answer workflow to clarify product and visual design decisions, compare tradeoffs, and produce sequenced implementation work with acceptance criteria and validation.",
+    "developerName": "mike-tag",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "websiteURL": "https://github.com/mike-tag/shared-agent-skills",
+    "defaultPrompt": [
+      "Use $plan-design-decisions to interview me and create an implementation-ready design plan."
+    ]
+  }
+}
