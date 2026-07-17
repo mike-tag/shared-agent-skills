@@ -17,7 +17,25 @@ Interview the user to turn ambiguous design intent into a clear, defensible, imp
 
 ## Run the interview
 
-Ask one focused question at a time by default. When an interactive question tool is available, use it for bounded choices; otherwise ask directly in plain language. Offer two or three concrete options when that makes the decision easier, put the recommended option first, and explain its tradeoff briefly.
+Ask one focused question at a time by default. Always present user-facing questions in numbered-list format, including when asking only one question. Never leave a question embedded only in a paragraph or heading.
+
+When an interactive question tool is available, use it for bounded choices; otherwise ask directly in plain language. When choices would make the decision easier:
+
+- nest two or three concrete options beneath the numbered question;
+- put the model's recommended option first and label it **Recommended** explicitly;
+- immediately explain **Why this is recommended** in one or two sentences, tying the rationale to the user's stated audience, outcome, evidence, constraints, or risk;
+- state a concise tradeoff for each option so the recommendation remains transparent rather than prescriptive.
+
+Use this pattern:
+
+1. Which direction should the plan use?
+   - **Option A — Recommended:** Short description.
+     - **Why this is recommended:** Reason grounded in the current brief.
+     - **Tradeoff:** What this option gives up or risks.
+   - **Option B:** Short description.
+     - **Tradeoff:** What this option gives up or risks.
+
+Do not mark an option as recommended without explaining why. If the evidence is insufficient to recommend one responsibly, say so explicitly and ask a numbered question that obtains the missing information.
 
 If the user is unsure, propose a reasonable default and let them confirm or correct it. Do not stall on low-risk uncertainty. Record unresolved high-impact questions for the final plan.
 
@@ -100,6 +118,7 @@ Scale validation to risk. Prefer small reversible checks before expensive irreve
 
 ## Manage the conversation
 
+- Check every response before sending it: all questions must be list items, every recommended option must be visibly labeled, and every recommendation must include its rationale.
 - Maintain a compact working brief from the user's answers.
 - Periodically summarize decisions when the conversation becomes long or a phase closes.
 - Label statements as **confirmed**, **assumed**, **recommended**, or **open** when the distinction matters.
