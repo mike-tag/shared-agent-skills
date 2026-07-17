@@ -1,0 +1,131 @@
+name: Validate marketplace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate manifests and Codex install flow
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate marketplace structure
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          root = Path.cwd().resolve()
+          codex_marketplace = json.loads(
+              (root / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
+          )
+          claude_marketplace = json.loads(
+              (root / ".claude-plugin/marketplace.json").read_text(encoding="utf-8")
+          )
+
+          assert codex_marketplace["name"], "Codex marketplace name is required"
+          assert codex_marketplace.get("interface", {}).get("displayName"), (
+              "Codex marketplace interface.displayName is required"
+          )
+
+          codex_names = set()
+          for entry in codex_marketplace["plugins"]:
+              name = entry["name"]
+              codex_names.add(name)
+              assert entry["policy"]["installation"] in {
+                  "NOT_AVAILABLE",
+                  "AVAILABLE",
+                  "INSTALLED_BY_DEFAULT",
+              }
+              assert entry["policy"]["authentication"] in {"ON_INSTALL", "ON_USE"}
+              assert entry["category"], f"{name}: category is required"
+              assert entry["source"]["source"] == "local", f"{name}: source must be local"
+
+              source_path = entry["source"]["path"]
+              assert source_path == f"./plugins/{name}", (
+                  f"{name}: expected source path ./plugins/{name}, got {source_path}"
+              )
+              plugin_root = (root / source_path).resolve()
+              assert plugin_root.is_relative_to(root), f"{name}: source escapes repository"
+              assert plugin_root.is_dir(), f"{name}: plugin directory is missing"
+
+              manifest_path = plugin_root / ".codex-plugin/plugin.json"
+              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+              assert manifest["name"] == name, f"{name}: Codex manifest name mismatch"
+              assert re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?", manifest["version"]), (
+                  f"{name}: version must be valid semantic versioning"
+              )
+              assert manifest["description"], f"{name}: description is required"
+              assert manifest["author"]["name"], f"{name}: author.name is required"
+              assert manifest["interface"]["displayName"], (
+                  f"{name}: interface.displayName is required"
+              )
+
+              skills_path = plugin_root / manifest.get("skills", "./skills/")
+              skill_files = list(skills_path.glob("*/SKILL.md"))
+              assert skill_files, f"{name}: no SKILL.md files found"
+              for skill_file in skill_files:
+                  contents = skill_file.read_text(encoding="utf-8")
+                  assert contents.startswith("---\n"), f"{skill_file}: YAML frontmatter is missing"
+                  assert "[TODO:" not in contents, f"{skill_file}: unresolved TODO placeholder"
+
+          claude_names = {entry["name"] for entry in claude_marketplace["plugins"]}
+          assert claude_names == codex_names, (
+              f"Marketplace plugin mismatch: Codex={sorted(codex_names)}, "
+              f"Claude={sorted(claude_names)}"
+          )
+          for name in claude_names:
+              manifest_path = root / "plugins" / name / ".claude-plugin/plugin.json"
+              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+              assert manifest["name"] == name, f"{name}: Claude manifest name mismatch"
+
+          print(f"Validated {len(codex_names)} plugin(s) across both marketplaces.")
+          PY
+
+      - name: Install current Codex CLI
+        run: npm install --global @openai/codex@latest
+
+      - name: Exercise Codex marketplace and plugin installation
+        shell: bash
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex-home
+        run: |
+          mkdir -p "$CODEX_HOME"
+          codex --version
+          codex plugin marketplace add "$GITHUB_WORKSPACE"
+          codex plugin marketplace list
+          codex plugin list
+
+          python - <<'PY' > "$RUNNER_TEMP/plugin-selectors.txt"
+          import json
+          from pathlib import Path
+
+          marketplace = json.loads(
+              Path(".agents/plugins/marketplace.json").read_text(encoding="utf-8")
+          )
+          for plugin in marketplace["plugins"]:
+              print(f"{plugin['name']}@{marketplace['name']}")
+          PY
+
+          while IFS= read -r plugin; do
+            codex plugin add "$plugin"
+          done < "$RUNNER_TEMP/plugin-selectors.txt"
+
+          codex plugin list
